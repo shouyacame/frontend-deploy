@@ -65,7 +65,7 @@ jobs:
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
-          with:
+        with:
           app-name: 'tech0-gen9-step32-webapp-frontend'
           slot-name: 'Production'
           package: ./deploy #4
