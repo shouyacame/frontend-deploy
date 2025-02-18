@@ -17,22 +17,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true  # Add this line to update submodules
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      - name: npm install, build, test
         env:
           NEXT_PUBLIC_API_ENDPOINT: ${{ secrets.NEXT_PUBLIC_API_ENDPOINT }}
         run: |
           npm install
           npm run build --if-present
           npm run test --if-present
+          
+      - name: Copy artifact for deployment job
+        run: |
+          mkdir deploy
+          cp -r ./.next/standalone/. ./deploy
+          cp -r ./.next/static/. ./deploy/.next/static
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip release.zip ./deploy -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -62,5 +70,5 @@ jobs:
         with:
           app-name: 'tech0-gen-9-step3-1-node-57'
           slot-name: 'Production'
-          package: .
-          publish-profile: ${{secrets.AZUREAPPSERVICE_PUBLISHPROFILE_77CB2D6C80984A1E8EE5B364639B730C}}
+          package: ./deploy
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_77CB2D6C80984A1E8EE5B364639B730C }}
